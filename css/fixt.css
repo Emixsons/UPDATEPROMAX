@@ -1,0 +1,80 @@
+@media (max-width: 600px) {
+    .tab-general {
+        display: block;
+        height: 75px;
+    }
+
+    .tab {
+        width: 90%;
+        height: 100px;
+    }
+
+    .idNameStatusAnd {
+        width: 100%;
+    }
+
+    .FromTimetillTimeLongIsland {
+        width: 100%;
+    }
+
+    .locationQueue {
+        width: 100%;
+    }
+
+    .bottom-tab input {
+        width: 94%;
+        left: 1%;
+    }
+
+    .LongIsland {
+        position: absolute;
+        right: 1%;
+        height: 25px;
+        width: 26%;
+    }
+
+    .status-and {
+        border-radius: 0;
+        position: absolute;
+        right: 1%;
+        height: 23px;
+        top: 2px;
+    }
+
+    .location {
+        width: 92%;
+    }
+
+    .location input {
+        width: 100%;
+        margin-left: 1%;
+    }
+
+    .queue {
+        position: absolute;
+        right: 1%;
+        height: 25px;
+    }
+
+    .from-time {
+        width: 35%;
+        margin-left: 1%;
+    }
+
+    .till-time {
+        width: 35%;
+        margin-left: 1%;
+    }
+
+    .from-time input {
+        width: 100%;
+        margin-left: 0;
+        background-color: rgb(235, 235, 235);
+    }
+
+    .till-time input {
+        width: 100%;
+        margin-left: 0;
+        background-color: rgb(235, 235, 235);
+    }
+}

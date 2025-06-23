@@ -1,9 +1,35 @@
 let mainTab = document.querySelector('.main-tab')
-document.addEventListener("visibilitychange", function () {
-    if (document.visibilityState === "visible") {
+const RELOAD_INTERVAL_MINUTES = 30; // сколько минут ждать при возврате на вкладку
+const MAX_OPEN_TIME_MINUTES = 60;  // максимум, сколько можно держать вкладку открытой без обновления
+
+function checkAndReload() {
+    const lastReload = localStorage.getItem("lastReloadTime");
+    const now = Date.now();
+
+    if (!lastReload || now - parseInt(lastReload, 10) > RELOAD_INTERVAL_MINUTES * 60 * 1000) {
+        localStorage.setItem("lastReloadTime", now.toString());
         location.reload();
     }
+}
+
+document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible") {
+        checkAndReload();
+    }
 });
+
+// Добавим таймер, который проверяет каждые 5 минут: если прошло более часа — обновляем
+setInterval(() => {
+    const lastReload = localStorage.getItem("lastReloadTime");
+    const now = Date.now();
+
+    if (!lastReload || now - parseInt(lastReload, 10) > MAX_OPEN_TIME_MINUTES * 60 * 1000) {
+        localStorage.setItem("lastReloadTime", now.toString());
+        location.reload();
+    }
+}, 30 * 60 * 1000); // проверка каждые 5 минут
+
+
 /////////////////////// хранилище ///////////////////////
 
 let generalMasiv = []
@@ -52,8 +78,10 @@ setInterval(updateTillTime, 10000); // обновлять каждую секу�
 // →→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→ //
 // →→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→ //
 
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
 import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
 
 /////////////////////// Конфигурация Firebase ///////////////////////
 
@@ -66,6 +94,7 @@ const firebaseConfig = {
     appId: "1:732484082064:web:b280fbf4342726264efb15",
     measurementId: "G-02HZGK5Y2F"
 };
+/////////////////////// Конфигурация Firebase ///////////////////////
 
 /////////////////////// ---------- ///////////////////////
 
@@ -764,52 +793,54 @@ function start() {
         var options7 = document.createElement('option')
         var options8 = document.createElement('option')
         options1.innerHTML = 'Off'
-        if (input.statusAnd == 'Off') {
+        if (input.statusAnd == 'Off 🚫' || input.statusAnd == 'Off') {
             statusAnd.classList.add('off')
             options1.setAttribute('selected', '')
         }
         options2.innerHTML = 'Load Has'
-        if (input.statusAnd == 'Load Has') {
+        if (input.statusAnd == 'Load Has 🚚' || input.statusAnd == 'Load Has') {
             statusAnd.classList.add('load-Has')
             options2.setAttribute('selected', '')
             input.statu = true
         }
         options3.innerHTML = 'Sleeping'
-        if (input.statusAnd == 'Sleeping') {
+        if (input.statusAnd == 'Sleeping 💤' || input.statusAnd == 'Sleeping') {
             statusAnd.classList.add('Sleeping')
             options3.setAttribute('selected', '')
             input.statu = false
         }
         options4.innerHTML = 'Completing'
-        if (input.statusAnd == 'Completing') {
+        if (input.statusAnd == 'Completing 🏁' || input.statusAnd == 'Completing') {
             statusAnd.classList.add('Completing')
             options4.setAttribute('selected', '')
             input.statu = true
         }
         options5.innerHTML = 'XRM'
-        if (input.statusAnd == 'XRM') {
+        if (input.statusAnd == 'XRM 🗨️' || input.statusAnd == 'XRM') {
             statusAnd.classList.add('XRM')
             input.statu = false
             options5.setAttribute('selected', '')
         }
         options6.innerHTML = 'No info'
-        if (input.statusAnd == 'No info') {
+        if (input.statusAnd == 'No info ❔' || input.statusAnd == 'No info') {
             statusAnd.classList.add('No-info')
             options6.setAttribute('selected', '')
             input.statu = false
         }
         options7.innerHTML = 'Deadhead'
-        if (input.statusAnd == 'Deadhead') {
+        if (input.statusAnd == 'Deadhead 🛣️' || input.statusAnd == 'Deadhead') {
             statusAnd.classList.add('Deadhead')
             options7.setAttribute('selected', '')
             input.statu = true
         }
         options8.innerHTML = 'Ready'
-        if (input.statusAnd == 'Ready') {
+        if (input.statusAnd == 'Ready 📭' || input.statusAnd == 'Ready') {
             statusAnd.classList.add('Ready')
             options8.setAttribute('selected', '')
             input.statu = true
         }
+
+
         var LongIsland = document.createElement('div')
 
         var fromTime = document.createElement('div')
@@ -858,7 +889,21 @@ function start() {
         var location = document.createElement('div')
         var localInput = document.createElement('input')
         localInput.setAttribute('type', 'text')
-        localInput.value = input.location
+        // localInput.value = input.location
+
+        function formatLocation(location) {
+            let parts = location.trim().split(',');
+            let city = parts[0].toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+
+            if (parts.length === 2) {
+                let state = parts[1].trim().toUpperCase();
+                return `${city}, ${state}`;
+            } else {
+                return city;
+            }
+        }
+        localInput.value = formatLocation(input.location);
+
         localInput.addEventListener('change', function (a) {
             input.location = a.target.value
             updateData(input.idPass, { location: a.target.value, })
@@ -1013,13 +1058,26 @@ function start() {
             LongIsland.innerHTML = 'Long Island ⨉'
             LongIsland.classList.add('off')
         }
+        let idNameStatusAnd = document.createElement('div')
+        let FromTimetillTimeLongIsland = document.createElement('div')
+        let locationQueue = document.createElement('div')
+
+        idNameStatusAnd.classList.add('idNameStatusAnd')
+        FromTimetillTimeLongIsland.classList.add('FromTimetillTimeLongIsland')
+        locationQueue.classList.add('locationQueue')
+
         let hr = document.createElement('hr')
         hr.classList.add('hr')
         mainTab.append(tab)
         tab.append(tabGeneral, bottomTab, ulLocal)
         bottomTab.append(bottomTabText, bottomTabImportant, menuMousemove)
         menuMousemove.append(menuMousemoveSetting, menuMousemoveGeneralDelet)
-        tabGeneral.append(id, name, statusAnd, fromTime, tillTime, LongIsland, location, queue)
+        tabGeneral.append(idNameStatusAnd, FromTimetillTimeLongIsland, locationQueue)
+
+        idNameStatusAnd.append(id, name, statusAnd,)
+        FromTimetillTimeLongIsland.append(fromTime, tillTime, LongIsland,)
+        locationQueue.append(location, queue)
+
         fromTime.append(fromInput)
         tillTime.append(tillInput)
         location.append(localInput)
@@ -1397,7 +1455,7 @@ function startFilter() {
     masivOff = []
     if (filter.LoadHas) {
         masivfilter.forEach((init) => {
-            if (init.statusAnd == 'Load Has') {
+            if (init.statusAnd == 'Load Has 🚚' || init.statusAnd == 'Load Has') {
                 masiv.push(init)
                 masiv.sort((a, b) => a.name.localeCompare(b.name));
             }
@@ -1405,7 +1463,7 @@ function startFilter() {
     }
     if (filter.Completing) {
         masivfilter.forEach((init) => {
-            if (init.statusAnd == 'Completing') {
+            if (init.statusAnd == 'Completing 🏁' | init.statusAnd == 'Completing') {
                 masiv.push(init)
                 // masiv.sort((a, b) => a.name.localeCompare(b.name));
             }
@@ -1413,7 +1471,7 @@ function startFilter() {
     }
     if (filter.Deadhead) {
         masivfilter.forEach((init) => {
-            if (init.statusAnd == 'Deadhead') {
+            if (init.statusAnd == 'Deadhead 🛣️' | init.statusAnd == 'Deadhead') {
                 masiv.push(init)
                 // masiv.sort((a, b) => a.name.localeCompare(b.name));
             }
@@ -1421,7 +1479,7 @@ function startFilter() {
     }
     if (filter.Ready) {
         masivfilter.forEach((init) => {
-            if (init.statusAnd == 'Ready') {
+            if (init.statusAnd == 'Ready 📭' | init.statusAnd == 'Ready') {
                 filterReadyReady.push(init)
                 filterReadyReady.sort((a, b) => a.name.localeCompare(b.name));
             }
@@ -1441,7 +1499,7 @@ function startFilter() {
     }
     if (filter.Sleeping) {
         masivfilter.forEach((init) => {
-            if (init.statusAnd == 'Sleeping') {
+            if (init.statusAnd == 'Sleeping 💤' | init.statusAnd == 'Sleeping') {
                 masiv.push(init)
                 // masiv.sort((a, b) => a.name.localeCompare(b.name));
             }
@@ -1450,7 +1508,7 @@ function startFilter() {
     if (filter.XRM) {
 
         masivfilter.forEach((init) => {
-            if (init.statusAnd == 'XRM') {
+            if (init.statusAnd == 'XRM 🗨️' | init.statusAnd == 'XRM') {
                 masiv.push(init)
                 // masiv.sort((a, b) => a.name.localeCompare(b.name));
             }
@@ -1459,7 +1517,7 @@ function startFilter() {
     if (filter.NoInfo) {
 
         masivfilter.forEach((init) => {
-            if (init.statusAnd == 'No info') {
+            if (init.statusAnd == 'No info ❔' | init.statusAnd == 'No info') {
                 masiv.push(init)
                 // masiv.sort((a, b) => a.name.localeCompare(b.name));
             }
@@ -1468,7 +1526,7 @@ function startFilter() {
     if (filter.Off) {
 
         masivfilter.forEach((init) => {
-            if (init.statusAnd == 'Off') {
+            if (init.statusAnd == 'Off 🚫' | init.statusAnd == 'Off') {
                 masivOff.push(init)
             }
         });
@@ -1704,6 +1762,7 @@ function themeSetting() {
         document.documentElement.style.setProperty('--bottom-border-Important', '#808080');
         document.documentElement.style.setProperty('--white-black', '#000000');
         document.documentElement.style.setProperty('--status', '#1a1a1a');
+        document.documentElement.style.setProperty('--bottom-tab', '#1f1f1f');
     } else if (setting.theme == 'Dark') {
         document.documentElement.style.setProperty('--header', '#1b1b1b');
         document.documentElement.style.setProperty('--center-filter', '#ececec1f');
@@ -1725,6 +1784,7 @@ function themeSetting() {
         document.documentElement.style.setProperty('--bottom-border-Important', '#808080');
         document.documentElement.style.setProperty('--white-black', '#a1a1a1');
         document.documentElement.style.setProperty('--status', '#bebebe');
+        document.documentElement.style.setProperty('--bottom-tab', '#c2c2c2');
     } else if (setting.theme == 'Poisonous') {
         document.documentElement.style.setProperty('--header', '#00a16c');
         document.documentElement.style.setProperty('--center-filter', '#00a16c1f');
@@ -1746,7 +1806,7 @@ function themeSetting() {
         document.documentElement.style.setProperty('--bottom-border-Important', '#ffffff94');
         document.documentElement.style.setProperty('--white-black', '#ffffff');
         document.documentElement.style.setProperty('--status', '#ffffff');
-
+        document.documentElement.style.setProperty('--bottom-tab', '#ececec');
     }
 }
 
