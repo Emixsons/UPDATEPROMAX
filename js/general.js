@@ -1052,11 +1052,11 @@ function start() {
         QueueLeftBox5.classList.add('QueueLeftBox5', 'QueueLeftBox')
         QueueLeftClear.classList.add('QueueLeftClear', 'QueueLeftBox')
         if (input.LongIsland) {
-            LongIsland.innerHTML = 'Long Island ✔'
-            LongIsland.classList.add('Ready')
-        } else {
-            LongIsland.innerHTML = 'Long Island ⨉'
+            LongIsland.innerHTML = 'Local'
             LongIsland.classList.add('off')
+        } else {
+            LongIsland.innerHTML = 'Long'
+            LongIsland.classList.add('Ready')
         }
         let idNameStatusAnd = document.createElement('div')
         let FromTimetillTimeLongIsland = document.createElement('div')
